@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 border-0 shadow-sm">
+            <h3>Настройки</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">Аватар</label>
+                    <input type="file" name="avatar" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">О себе</label>
+                    <textarea name="bio" class="form-control" rows="3">{{ current_user.bio }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Сохранить</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

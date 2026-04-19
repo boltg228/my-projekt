@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+        <form action="{{ url_for('index') }}" method="GET">
+            <div class="input-group input-group-lg shadow-sm border rounded-pill overflow-hidden bg-white">
+                <span class="input-group-text bg-white border-0 ps-4"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" class="form-control border-0 shadow-none" 
+                       placeholder="Поищи ответ у кота..." 
+                       value="{{ request.args.get('q', '') }}">
+                <button class="btn btn-warning px-4 fw-bold" type="submit">Найти</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0 text-dark">
+        {% if request.args.get('q') %}
+            <i class="bi bi-funnel text-warning"></i> Кот нашел:
+        {% else %}
+            <i class="bi bi-stars text-warning"></i> Ответы от кота
+        {% endif %}
+    </h2>
+    {% if request.args.get('q') %}
+        <a href="{{ url_for('index') }}" class="btn btn-sm btn-light rounded-pill border">Сбросить всё</a>
+    {% endif %}
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        {% for q in questions %}
+            <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if q.author.avatar %}
+                            <img src="{{ url_for('static', filename='uploads/' + q.author.avatar) }}" 
+                                 class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover; border: 1px solid #eee;">
+                        {% else %}
+                            <i class="bi bi-person-circle fs-4 me-2 text-secondary"></i>
+                        {% endif %}
+                        <a href="{{ url_for('profile', username=q.author.username) }}" 
+                           class="text-decoration-none text-primary fw-bold small">
+                            @{{ q.author.username }}
+                        </a>
+                        <span class="mx-2 text-muted small">•</span>
+                        <small class="text-muted small">{{ q.date_created.strftime('%d.%m.%Y') }}</small>
+                    </div>
+
+                    <h4 class="card-title mb-3">
+                        <a href="{{ url_for('question_detail', id=q.id) }}" 
+                           class="text-dark fw-bold text-decoration-none">
+                            {{ q.title }}
+                        </a>
+                    </h4>
+
+                    {% if q.image_file %}
+                        <div class="mb-3 rounded-3 overflow-hidden border">
+                            <img src="{{ url_for('static', filename='uploads/' + q.image_file) }}" 
+                                 class="img-fluid w-100" style="max-height: 400px; object-fit: cover;">
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                        <form action="{{ url_for('like_question', question_id=q.id) }}" method="POST">
+                            {% set user_liked = false %}
+                            {% if current_user.is_authenticated %}
+                                {% for like in q.likes if like.user_id == current_user.id %}
+                                    {% set user_liked = true %}
+                                {% endfor %}
+                            {% endif %}
+                            
+                            <button type="submit" class="btn {% if user_liked %}btn-danger shadow-sm{% else %}btn-outline-danger{% endif %} rounded-pill px-3 py-1 fw-bold border-0">
+                                <i class="bi bi-heart-fill me-1"></i> {{ q.likes|length }}
+                            </button>
+                        </form>
+                        <small class="text-muted ms-3">Мяу-лайков: {{ q.likes|length }}</small>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-cat-fill text-muted opacity-25" style="font-size: 5rem;"></i>
+                <h3 class="text-muted fw-bold mt-3">Кот пока ничего не нашел...</h3>
+                <p class="text-muted">Попробуйте другой запрос или станьте первым, кто задаст вопрос!</p>
+                <a href="{{ url_for('ask') }}" class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm mt-2">Мяукнуть вопрос</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

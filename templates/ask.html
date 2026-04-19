@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0">Задать вопрос</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/ask" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Суть вопроса</label>
+                        <input type="text" class="form-control" name="title" required placeholder="Например: Как установить Python на Windows?">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Подробности</label>
+                        <textarea class="form-control" name="content" rows="5" required placeholder="Опишите проблему подробнее..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Прикрепить фото</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                        <div class="form-text text-muted small">Необязательно. Поддерживаются JPG, PNG, GIF.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Опубликовать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
