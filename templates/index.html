@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- Секция поиска -->
 <div class="row justify-content-center mb-5">
     <div class="col-md-8">
         <form action="{{ url_for('index') }}" method="GET">
@@ -16,7 +15,6 @@
     </div>
 </div>
 
-<!-- Заголовок ленты -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0 text-dark">
         {% if request.args.get('q') %}
@@ -30,13 +28,11 @@
     {% endif %}
 </div>
 
-<!-- Список вопросов -->
 <div class="row justify-content-center">
     <div class="col-md-10">
         {% for q in questions %}
             <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
                 <div class="card-body p-4">
-                    <!-- Шапка вопроса -->
                     <div class="d-flex align-items-center mb-3">
                         {% if q.author.avatar %}
                             <img src="{{ url_for('static', filename='uploads/' + q.author.avatar) }}" 
@@ -52,7 +48,6 @@
                         <small class="text-muted small">{{ q.date_created.strftime('%d.%m.%Y') }}</small>
                     </div>
 
-                    <!-- Заголовок вопроса -->
                     <h4 class="card-title mb-3">
                         <a href="{{ url_for('question_detail', id=q.id) }}" 
                            class="text-dark fw-bold text-decoration-none">
@@ -60,7 +55,6 @@
                         </a>
                     </h4>
 
-                    <!-- Изображение -->
                     {% if q.image_file %}
                         <div class="mb-3 rounded-3 overflow-hidden border">
                             <img src="{{ url_for('static', filename='uploads/' + q.image_file) }}" 
@@ -68,9 +62,7 @@
                         </div>
                     {% endif %}
 
-                    <!-- Панель активности: Лайки и Ответы -->
                     <div class="d-flex align-items-center mt-3 pt-3 border-top">
-                        <!-- Кнопка лайка -->
                         <form action="{{ url_for('like_question', question_id=q.id) }}" method="POST" class="d-inline">
                             {% set user_liked = false %}
                             {% if current_user.is_authenticated %}
@@ -83,8 +75,7 @@
                                 <i class="bi bi-heart-fill me-1"></i> {{ q.likes|length }}
                             </button>
                         </form>
-                        
-                        <!-- Ссылка на комментарии/ответы -->
+
                         <a href="{{ url_for('question_detail', id=q.id) }}" class="btn btn-outline-secondary btn-sm rounded-pill border-0 px-3 py-1 fw-bold ms-2 text-decoration-none">
                             <i class="bi bi-chat-left-text-fill me-1 text-warning"></i> Ответов: {{ q.comments|length }}
                         </a>
