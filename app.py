@@ -31,7 +31,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# --- МОДЕЛИ ---
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,6 +41,7 @@ class User(UserMixin, db.Model):
     avatar = db.Column(db.String(100), nullable=True)
     questions = db.relationship('Question', backref='author', lazy=True)
     likes = db.relationship('Like', backref='user', lazy=True)
+    comments = db.relationship('Comment', backref='author', lazy=True)  # Связь с ответами
 
 
 class Question(db.Model):
@@ -51,6 +52,7 @@ class Question(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     likes = db.relationship('Like', backref='question', lazy=True, cascade="all, delete-orphan")
+    comments = db.relationship('Comment', backref='question', lazy=True, cascade="all, delete-orphan")  # Связь с ответами
 
 
 class Like(db.Model):
@@ -59,7 +61,15 @@ class Like(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
 
 
-# --- МАРШРУТЫ ---
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+
+
+
 
 @app.route('/')
 def index():
@@ -132,6 +142,21 @@ def question_detail(id):
     return render_template('question.html', question=q)
 
 
+@app.route('/question/<int:question_id>/comment', methods=['POST'])
+@login_required
+def add_comment(question_id):
+    content = request.form.get('content')
+    if content:
+        new_comment = Comment(
+            content=content,
+            user_id=current_user.id,
+            question_id=question_id
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+    return redirect(url_for('question_detail', id=question_id))
+
+
 @app.route('/like/<int:question_id>', methods=['POST'])
 @login_required
 def like_question(question_id):
@@ -172,4 +197,4 @@ if __name__ == '__main__':
         if not os.path.exists(UPLOAD_FOLDER):
             os.makedirs(UPLOAD_FOLDER)
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=80)
